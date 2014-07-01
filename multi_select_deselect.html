@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<body>
+<script src="./lib/d3/d3.js"></script>
+<script src="./lib/word-cloud/d3.layout.cloud.js"></script>
+<script>
+
+// John (01/07/2014): To allow multi selection and de-selection of tags
+// See the browser console for the output of selected tags
+
+var fill = d3.scale.category20();
+var words = [{"text":"This", "url":"http://google.com/", size: 100, select: false},
+             {"text":"is", "url":"http://bing.com/", size: 80, select: false},
+             {"text":"some", "url":"http://somewhere.com/", size: 60, select: false},
+             {"text":"random", "url":"http://random.org/", size: 40, select: false},
+             {"text":"text", "url":"http://text.com/", size: 20, select: false}]
+var width = 800;
+var height = 300;
+var selected = [];
+
+
+d3.layout.cloud()
+  .size([width, height])
+  .words(words)
+  .padding(5)
+  .rotate(function() { return ~~ (Math.random() * 2) * 90; })
+  .font("Impact")
+  .fontSize(function(d) { return d.size;})
+  .on("end", draw)
+  .start();
+
+function draw(words) {
+    d3.select("body")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .append("g")
+      .attr("transform", "translate("+ width/2 +","+ height/2 +")")
+      .selectAll("text")
+      .data(words)
+      .enter()
+      .append("text")
+      .style("font-size", function(d) { return d.size + "px"; })
+      .style("font-family", "Impact")
+      .style("fill", function(d, i) { return fill(i); })
+      .attr("text-anchor", "middle")
+      .attr("transform", function(d) {
+          return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")"; 
+      })
+      .text(function(d) { return d.text; })
+      .on("click", function (d, i){
+          if (!d.select) {
+              d3.select(this).style("fill", "gold");
+              d.select = true;
+              selected.push(d.text);
+              console.log(selected);
+          }
+          else {
+              d3.select(this).style("fill", fill(i));
+              d.select = false;
+              var idx = selected.indexOf(d.text);
+              selected.splice(idx, 1);
+              console.log(selected);
+          }
+          //window.open(d.url, "_blank");
+      });
+}
+</script>
