@@ -1,2 +1,2 @@
-##Collection of D3 codes
+##Collection of D3 snippets
 
